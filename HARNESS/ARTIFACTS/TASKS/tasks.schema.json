@@ -19,6 +19,10 @@
       "type": "string",
       "enum": ["pending", "in_progress", "completed", "archived"],
       "description": "Current status of the task"
+    },
+    "order": {
+      "type": "integer",
+      "description": "Order in which the task should be completed (lower values first)"
     }
   },
   "required": ["id", "title", "status"],
