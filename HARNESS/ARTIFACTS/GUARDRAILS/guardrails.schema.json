@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Guardrails",
+  "type": "object",
+  "properties": {
+    "guardrails": {
+      "type": "array",
+      "description": "Constraints and guidelines an AI agent should take into account while developing",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the guardrail"
+          },
+          "title": {
+            "type": "string",
+            "description": "Short label for the guardrail (e.g. \"No eval\", \"Prefer immutable data\")"
+          },
+          "description": {
+            "type": "string",
+            "description": "What the agent should take into account or do/avoid"
+          },
+          "category": {
+            "type": "string",
+            "description": "Category for grouping or filtering (e.g. security, performance, style, accessibility)"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["must", "should", "consider"],
+            "description": "How strictly the guardrail should be applied"
+          }
+        },
+        "required": ["id", "title", "description"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["guardrails"],
+  "additionalProperties": false
+}
