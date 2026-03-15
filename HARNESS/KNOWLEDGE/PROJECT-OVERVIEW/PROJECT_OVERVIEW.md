@@ -1,31 +1,28 @@
 # Project overview
 
-**simkernel2** is a US state simulation and desktop app project.
+**Replace this file with your project's overview.**
 
 ## What it does
 
-- **Core simulation (statesim)** — Schema (LinkML, SQLAlchemy), jobs (SQL templates + metadata), CLI subcommands, analytics, repository and job execution. Entry: `statesim/__init__.py`.
-- **Desktop app (electron)** — Electron + React UI; main process, renderer, tests (including Playwright E2E).
-- **Tests** — Pytest for statesim (schema, jobs, CLI, analytics, etc.) under `tests/`.
-- **Scripts** — Build and run (e.g. `Build.ps1`, `Run-Tests.ps1`, `Run-Us-State-Simulator.ps1`) in `scripts/`.
+- Short description of the project and its purpose.
+- Main areas: e.g. core package, app, tests, scripts.
 
 ## Main components
 
-| Area        | Purpose |
-|------------|---------|
-| `statesim/` | Core simulation package |
-| `electron/` | Desktop app (Electron + React) |
-| `tests/`    | Pytest test suite |
-| `scripts/`  | Build and run scripts |
-| `docs/`     | Project documentation |
-| `examples/` | Example usage (e.g. `repository_usage.py`) |
-| `geodata/`  | Geographic data assets |
-| `workspace/`| Runtime/working data (game state, DBs) |
-| `build/`    | Build outputs |
+| Area   | Purpose |
+|--------|---------|
+| (e.g. `src/`)  | Core application or library |
+| (e.g. `tests/`) | Test suite |
+| (e.g. `scripts/`) | Build and run scripts |
+| (e.g. `docs/`) | Project documentation |
+
+Add or remove rows to match your repo layout.
 
 ## Entry points
 
-- **CLI:** `statesim` (via `statesim.cli:main`)
-- **Unit tests:** `pytest tests/` or `scripts/Run-Tests.ps1`
-- **E2E tests:** `npm run test:e2e` in `electron/` (Playwright)
-- **Desktop app:** `npm run start` in `electron/`
+- **CLI or main app:** How to run the primary executable.
+- **Unit tests:** Command to run unit tests (e.g. `npm test`, `pytest tests/`).
+- **E2E tests:** Command to run end-to-end tests (e.g. `npm run test:e2e`), if applicable.
+- **Development server or build:** How to start the app or build for production.
+
+Update these to match your project so agents and contributors know where to start.

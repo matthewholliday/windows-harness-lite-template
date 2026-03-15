@@ -89,9 +89,9 @@ Scripts and helpers for validation and harness operations.
 
 | File | Description |
 |------|-------------|
-| `ASSERT_UNIT_TESTS_PASS.ps1` | Run unit tests (pytest via `scripts/Run-Tests.ps1` or `pytest tests/`); exit non-zero if any fail. |
-| `ASSERT_E2E_TESTS_PASS.ps1` | Run E2E tests (Playwright in `electron/`: `npm run test:e2e`); exit non-zero if any fail. |
-| `ASSERT_LINTING.ps1` | Run linting (ruff if available, else Python compileall on statesim); exit non-zero if lint fails. |
+| `ASSERT_UNIT_TESTS_PASS.ps1` | Run unit tests; exit non-zero if any fail. Tries project script, npm/pnpm/yarn test, or pytest—wire to your runner if needed. |
+| `ASSERT_E2E_TESTS_PASS.ps1` | Run E2E tests; exit non-zero if any fail (or skip with message if no E2E setup). Detects package.json test:e2e, Playwright, Cypress. |
+| `ASSERT_LINTING.ps1` | Run linting; exit non-zero if lint fails. Tries ESLint, Ruff, or minimal fallback—wire to your linter if needed. |
 | `ASSERT_ARTIFACTS.ps1` | (Optional) Validate HARNESS artifacts (TASKS.jsonl, GUARDRAILS.jsonl, schemas) are present and schema-compliant. |
 
 ---

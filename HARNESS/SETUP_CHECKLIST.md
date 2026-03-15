@@ -14,7 +14,7 @@ These steps help you (or an agent) adapt the **generic** HARNESS structure to th
 ## 2. Integrate with project docs
 
 - [ ] **AGENTS.md** (or equivalent at repo root):
-  - [ ] Update the **project map** so package/module names and paths match this repo (e.g. `statesim/`, `electron/`, `tests/`, `scripts/`).
+  - [ ] Update the **project map** so package/module names and paths match this repo (e.g. `src/`, `tests/`, `app/`).
   - [ ] Add or update the **HARNESS** section: ARTIFACTS paths, KNOWLEDGE location, LOGS, and root files (TABLE_OF_CONTENTS, SETTINGS).
   - [ ] If you use Cursor commands (**tasks.add**, **task.decompose**, **kb.import**), ensure they’re listed and point to the right command/agent docs.
   - [ ] If you use subagents (task.decomposer, task.writer, kb.importer), list them with when to use each.
