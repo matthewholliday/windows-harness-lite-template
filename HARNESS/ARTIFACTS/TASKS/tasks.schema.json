@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Task",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the task"
+    },
+    "title": {
+      "type": "string",
+      "description": "Short summary of the task"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed information about the task"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "in_progress", "completed", "archived"],
+      "description": "Current status of the task"
+    }
+  },
+  "required": ["id", "title", "status"],
+  "additionalProperties": false
+}
