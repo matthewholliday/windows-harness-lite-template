@@ -4,7 +4,7 @@ globs: HARNESS/ARTIFACTS/TASKS/TASKS.jsonl
 alwaysApply: false
 ---
 
-# tasks.add
+# task.add
 
 When the user invokes **tasks.add** (e.g. `/tasks.add` or "tasks.add" with a task description), add that task to `HARNESS/ARTIFACTS/TASKS/TASKS.jsonl`.
 
