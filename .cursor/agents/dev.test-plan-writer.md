@@ -44,6 +44,14 @@ Deliver the plan in this form:
 - **Order of work**: Recommend whether to implement unit tests first, e2e first, or in parallel, and why.
 - **Risks and gaps**: Any areas that are hard to test or need extra attention.
 
+## Progress reporting
+
+**Location**: `HARNESS/ARTIFACTS/PROGRESS/PROGRESS.jsonl` — append one JSON object per line; do not overwrite.
+
+- **When you start**: Append a line with `"agent": "dev.test-plan-writer"`, `"event": "started"`, `"message": "Writing test plan."`, and `"timestamp"` (ISO 8601 UTC).
+- **After drafting unit/e2e sections**: Append a line with `"event": "milestone"` and a short message.
+- **When you finish**: Append a line with `"event": "completed"` or `"event": "failed"` and a brief message. Optional: `task_id`, `step`, `details`.
+
 ## Guidelines
 
 - Tie every test case back to the user’s task; avoid generic or filler tests.

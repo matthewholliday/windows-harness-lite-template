@@ -41,6 +41,14 @@ For each logical step (in dependency order):
 - Gaps or unknowns that need research or decisions.
 - Suggestions for tests (unit vs e2e) or follow-up work.
 
+## Progress reporting
+
+**Location**: `HARNESS/ARTIFACTS/PROGRESS/PROGRESS.jsonl` — append one JSON object per line; do not overwrite.
+
+- **When you start**: Append a line with `"agent": "dev.implementation-planner"`, `"event": "started"`, `"message": "Planning implementation."`, and `"timestamp"` (ISO 8601 UTC).
+- **After producing the plan**: Append a line with `"event": "milestone"`, message e.g. "Implementation plan produced."
+- **When you finish**: Append a line with `"event": "completed"` or `"event": "failed"` and a brief message. Optional: `task_id`, `step`, `details`.
+
 ## Guidelines
 
 - Tie every step to the feature; avoid generic or filler steps.

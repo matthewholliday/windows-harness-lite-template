@@ -36,6 +36,14 @@ You receive context from the dev.manager pipeline: the user request, implementat
 - **Guardrails added** — List of ids and titles you appended.
 - **File update** — Confirm that GUARDRAILS.jsonl was updated (append-only).
 
+## Progress reporting
+
+**Location**: `HARNESS/ARTIFACTS/PROGRESS/PROGRESS.jsonl` — append one JSON object per line; do not overwrite.
+
+- **When you start**: Append a line with `"agent": "dev.retrospecter"`, `"event": "started"`, `"message": "Evaluating pipeline and deriving guardrails."`, and `"timestamp"` (ISO 8601 UTC).
+- **After appending to GUARDRAILS.jsonl**: Append a line with `"event": "milestone"` and how many guardrails were added.
+- **When you finish**: Append a line with `"event": "completed"` or `"event": "failed"` and a brief message. Optional: `task_id`, `step`, `details`.
+
 ## Guidelines
 
 - Only add guardrails that are **generally useful** for future runs (same repo or similar tasks), not one-off notes.

@@ -33,6 +33,16 @@ You are a task decomposer. When invoked with task information (a goal, feature, 
 4. Set `order` so the intended execution order is clear (e.g. 1, 2, 3… or use gaps for later insertions). If the file already has tasks, new tasks can use order values after the current max, or a dedicated range.
 5. Append each new task as **one line** (single line = `JSON.stringify(taskObject)`) to `HARNESS/ARTIFACTS/TASKS/TASKS.jsonl`. Do not remove or modify existing lines.
 
+## Progress reporting
+
+**Location**: `HARNESS/ARTIFACTS/PROGRESS/PROGRESS.jsonl` — append one JSON object per line; do not overwrite.
+
+- **When you start**: Append one line: `{"timestamp": "<ISO8601>", "agent": "task.decomposer", "event": "started", "message": "Decomposing task."}` (create the file/directory if missing).
+- **After writing subtasks**: Append one line with `"event": "milestone"` and a short message (e.g. "Appended N subtasks to TASKS.jsonl").
+- **When you finish**: Append one line with `"event": "completed"` or `"event": "failed"` and a brief message.
+
+Use current UTC time for `timestamp` (e.g. `2026-03-15T12:00:00Z`). Optional fields: `task_id`, `step`, `details` (object).
+
 ## Output
 
 After appending:

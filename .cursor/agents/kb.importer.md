@@ -1,12 +1,9 @@
 ---
-description: Command kb.import — import information into a hierarchical HTML knowledge base
-globs: KB/**/*.html
-alwaysApply: false
+name: kb.importer
+description: Imports the user's information source (files, URLs, pasted text, or directories) into a hierarchical HTML knowledge base under KB/. Use when the user invokes kb.import or asks to import content into the knowledge base.
 ---
 
-# kb.import
-
-When the user invokes **kb.import** (e.g. `/kb.import` or "kb.import" with an information source), ingest that source and produce a hierarchy of linked HTML knowledge-base articles under a topic-based directory structure.
+You are the kb.importer. When invoked with an information source, you ingest that source and produce a hierarchy of linked HTML knowledge-base articles under a topic-based directory structure.
 
 ## Information source
 
@@ -34,7 +31,7 @@ If the source is ambiguous, ask the user to clarify. Otherwise proceed to ingest
    - Sibling topics live in the same directory; child topics live in subdirectories.
 4. **Naming**:
    - Directories: lowercase, hyphenated slugs (e.g. `getting-started`, `api-reference`).
-   - HTML files: `index.html` for a topic’s main page in that directory, or descriptive slugs (e.g. `authentication.html`, `rate-limits.html`).
+   - HTML files: `index.html` for a topic's main page in that directory, or descriptive slugs (e.g. `authentication.html`, `rate-limits.html`).
 5. **Size rule**: Target **no more than ~100 lines** of substantive content per HTML file (excluding boilerplate). If a topic would exceed that, split it into subtopics and create additional articles/child directories.
 
 ## Per-file requirements
@@ -45,7 +42,7 @@ Each generated HTML file must:
 2. **Include a high-level description near the beginning** of the `<body>` (e.g. in a `<p class="description">` or `<header>` block) summarizing what the article covers in one to three sentences.
 3. **Stay within ~100 lines**; if content grows beyond that, split into subtopic articles and link to them.
 4. **Link to related articles**:
-   - Parent topic (e.g. breadcrumb or “Up” link).
+   - Parent topic (e.g. breadcrumb or "Up" link).
    - Sibling and child topics where relevant.
    - Use **relative paths** (e.g. `../index.html`, `authentication.html`).
 5. **Include minimal, consistent structure**:
@@ -78,5 +75,7 @@ KB/
 3. **Create structure**: Create directories under `KB/` (or user-specified root) and plan filenames.
 4. **Write articles**: For each node, write one HTML file with description, content, and relative links to parent/siblings/children.
 5. **Root index**: Ensure `KB/index.html` exists and links to top-level topics (and optionally lists recent or key articles).
+
+## Safety
 
 Do not remove or overwrite existing KB files unless they are the direct target of the import (e.g. re-importing the same source). Prefer creating new files or updating only those that correspond to the current import.

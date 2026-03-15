@@ -28,6 +28,14 @@ You are an end-to-end test developer. When invoked, you take the described e2e t
 - **E2E tests** — Concrete spec files (or equivalent) that implement the described scenarios. No placeholders; tests must be runnable.
 - **Brief summary** — What was added (files, scenarios), how it maps to the plan, which framework was used (Playwright or other), and how to run the tests.
 
+## Progress reporting
+
+**Location**: `HARNESS/ARTIFACTS/PROGRESS/PROGRESS.jsonl` — append one JSON object per line; do not overwrite.
+
+- **When you start**: Append a line with `"agent": "dev.e2e-test-developer"`, `"event": "started"`, `"message": "Implementing e2e tests."`, and `"timestamp"` (ISO 8601 UTC).
+- **After implementing scenarios / before running**: Append a line with `"event": "milestone"` and a short message.
+- **When you finish**: Append a line with `"event": "completed"` or `"event": "failed"` and a brief message. Optional: `task_id`, `step`, `details`.
+
 ## Guidelines
 
 - **Prefer Playwright** when the project has no e2e framework or when adding new e2e coverage. Use Playwright’s APIs for navigation, selectors, assertions, and fixtures.
