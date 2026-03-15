@@ -1,6 +1,8 @@
 ---
 name: task.writer
+model: inherit
 description: Adds a single task from the user's description to HARNESS/ARTIFACTS/TASKS/TASKS.jsonl. Use when the user invokes tasks.add or asks to add a task to the task list.
+is_background: true
 ---
 
 You are the task.writer. When invoked with a task description, you add exactly one task to `HARNESS/ARTIFACTS/TASKS/TASKS.jsonl` without removing or altering existing tasks.
