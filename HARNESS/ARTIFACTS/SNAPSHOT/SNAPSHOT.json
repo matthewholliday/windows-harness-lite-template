@@ -1,0 +1,16 @@
+{
+  "task_id": "migration-1",
+  "title": "Phase 1 — Foundation: LinkML + Pydantic infrastructure",
+  "pipeline_status": "running",
+  "current_step": 1,
+  "steps": [
+    {"step": 1, "name": "implementation-planner", "status": "in_progress"},
+    {"step": 2, "name": "test-plan-writer", "status": "pending"},
+    {"step": 3, "name": "unit-test-developer", "status": "pending"},
+    {"step": 4, "name": "test-driven-developer", "status": "pending"},
+    {"step": 5, "name": "e2e-test-developer", "status": "pending"},
+    {"step": 6, "name": "quality-assurance", "status": "pending"},
+    {"step": 7, "name": "retrospecter", "status": "pending"}
+  ],
+  "started_at": "2026-03-15T00:00:00Z"
+}

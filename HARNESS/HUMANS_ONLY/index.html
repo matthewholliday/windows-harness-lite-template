@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Harness — Tasks & Progress</title>
+  <style>
+    :root {
+      --bg: #1a1b1e;
+      --surface: #25262b;
+      --text: #e4e4e7;
+      --muted: #71717a;
+      --accent: #3b82f6;
+      --success: #22c55e;
+      --warn: #eab308;
+      --border: #3f3f46;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 1.5rem;
+      line-height: 1.5;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    h1 { font-size: 1.25rem; font-weight: 600; margin: 0 0 0.5rem 0; }
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .last-checked { color: var(--muted); font-size: 0.875rem; }
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    button.refreshing { opacity: 0.8; }
+    section { margin-bottom: 1.5rem; }
+    section h2 { font-size: 1rem; margin: 0 0 0.5rem 0; color: var(--muted); font-weight: 500; }
+    .task-list, .progress-events { list-style: none; padding: 0; margin: 0; }
+    .task {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 0.75rem;
+      align-items: start;
+      padding: 0.6rem 0.75rem;
+      background: var(--surface);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      border: 1px solid var(--border);
+    }
+    .task .title { font-weight: 500; }
+    .task .description { grid-column: 1 / -1; color: var(--muted); font-size: 0.8125rem; }
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .badge.pending { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+    .badge.in_progress { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+    .badge.completed { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+    .badge.archived { background: var(--surface); color: var(--muted); }
+    .progress-summary {
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      border: 1px solid var(--border);
+    }
+    .progress-summary .task-id { color: var(--accent); font-size: 0.875rem; }
+    .progress-summary .pipeline { color: var(--muted); font-size: 0.8125rem; margin-top: 0.25rem; }
+    .progress-summary ul li + li { margin-top: 0.35rem; }
+    .event {
+      padding: 0.4rem 0.75rem;
+      border-left: 3px solid var(--border);
+      margin-bottom: 0.35rem;
+      font-size: 0.8125rem;
+      background: var(--surface);
+      border-radius: 0 6px 6px 0;
+    }
+    .event .time { color: var(--muted); margin-right: 0.5rem; }
+    .event .agent { color: var(--accent); }
+    .error { color: #f87171; font-size: 0.875rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+  <div style="text-align:center; margin-bottom:1.25rem;">
+    <img src="title.jpg" alt="Title" style="max-width:100%; height:auto;">
+  </div>
+  <h1>Harness — Tasks & Progress</h1>
+  <div class="meta">
+    <span class="last-checked" id="lastChecked">Last checked: —</span>
+    <span class="last-checked" id="autoRefreshLabel"></span>
+    <button type="button" id="refresh">Refresh</button>
+  </div>
+
+  <section>
+    <h2>Current progress</h2>
+    <div id="progressSummary"></div>
+    <p class="error" id="progressError"></p>
+  </section>
+
+  <section>
+    <h2>Recent events</h2>
+    <ul class="progress-events" id="progressEvents"></ul>
+    <p class="error" id="eventsError"></p>
+  </section>
+
+  <section>
+    <h2>Tasks</h2>
+    <ul class="task-list" id="taskList"></ul>
+    <p class="error" id="tasksError"></p>
+  </section>
+  </div>
+
+  <script>
+    (function () {
+      const BASE = window.location.pathname.replace(/\/HUMANS_ONLY\/.*$/, '');
+      const TASKS_URL = BASE + '/ARTIFACTS/TASKS/TASKS.jsonl';
+      const SNAPSHOT_URL = BASE + '/ARTIFACTS/SNAPSHOT/SNAPSHOT.json';
+      const PROGRESS_EVENTS_URL = BASE + '/ARTIFACTS/PROGRESS/PROGRESS.jsonl';
+      const POLL_INTERVAL_MS = 5000;
+
+      const lastCheckedEl = document.getElementById('lastChecked');
+      const refreshBtn = document.getElementById('refresh');
+      const taskListEl = document.getElementById('taskList');
+      const tasksErrorEl = document.getElementById('tasksError');
+      const progressSummaryEl = document.getElementById('progressSummary');
+      const progressErrorEl = document.getElementById('progressError');
+      const progressEventsEl = document.getElementById('progressEvents');
+      const eventsErrorEl = document.getElementById('eventsError');
+      const autoRefreshLabelEl = document.getElementById('autoRefreshLabel');
+      var loadInProgress = false;
+      var pollTimer = null;
+
+      function setLastChecked() {
+        const t = new Date();
+        lastCheckedEl.textContent = 'Last checked: ' + t.toLocaleString();
+      }
+
+      function parseJsonl(text) {
+        if (!text || !text.trim()) return [];
+        return text.trim().split('\n').map(function (line) {
+          try { return JSON.parse(line); } catch (_) { return null; }
+        }).filter(Boolean);
+      }
+
+      function renderTasks(tasks) {
+        tasksErrorEl.textContent = '';
+        taskListEl.innerHTML = '';
+        tasks.sort(function (a, b) {
+          const oa = a.order != null ? a.order : 999;
+          const ob = b.order != null ? b.order : 999;
+          return oa - ob;
+        });
+        tasks.forEach(function (t) {
+          const li = document.createElement('li');
+          li.className = 'task';
+          const status = (t.status || 'pending').toLowerCase();
+          li.innerHTML =
+            '<span class="title">' + escapeHtml(t.title || t.id) + '</span>' +
+            '<span class="badge ' + status + '">' + escapeHtml(t.status || 'pending') + '</span>' +
+            (t.description ? '<span class="description">' + escapeHtml(t.description) + '</span>' : '');
+          taskListEl.appendChild(li);
+        });
+      }
+
+      function formatElapsed(startedAt) {
+        if (!startedAt) return '';
+        var start = new Date(startedAt);
+        if (isNaN(start.getTime())) return '';
+        var totalSec = Math.max(0, Math.floor((Date.now() - start.getTime()) / 1000));
+        var h = Math.floor(totalSec / 3600);
+        var m = Math.floor((totalSec % 3600) / 60);
+        var s = totalSec % 60;
+        var parts = [];
+        if (h === 1) parts.push('1 hour');
+        else if (h > 1) parts.push(h + ' hours');
+        if (m === 1) parts.push('1 minute');
+        else if (m > 1) parts.push(m + ' minutes');
+        if (parts.length === 0 || s > 0) {
+          parts.push(s === 1 ? '1 second' : s + ' seconds');
+        }
+        return parts.join(', ');
+      }
+
+      function renderProgressSummary(data) {
+        progressErrorEl.textContent = '';
+        if (!data || !data.task_id) {
+          progressSummaryEl.innerHTML = '<div class="progress-summary">No active pipeline.</div>';
+          return;
+        }
+        var stepsHtml = '';
+        if (data.steps && data.steps.length) {
+          stepsHtml = '<ul style="margin:0.5rem 0 0 0; padding-left:1.2rem; font-size:0.8125rem; color:var(--muted);">';
+          data.steps.forEach(function (s) {
+            stepsHtml += '<li><span class="badge ' + (s.status || '').toLowerCase() + '">' + escapeHtml(s.status || '') + '</span> ' + escapeHtml(s.name || '') + '</li>';
+          });
+          stepsHtml += '</ul>';
+        }
+        var elapsedStr = formatElapsed(data.started_at);
+        var elapsedHtml = elapsedStr ? ' · elapsed ' + escapeHtml(elapsedStr) : '';
+        progressSummaryEl.innerHTML =
+          '<div class="progress-summary">' +
+          '<div class="task-id">' + escapeHtml(data.task_id) + '</div>' +
+          '<div class="pipeline">' + escapeHtml(data.pipeline_status || '') + ' — step ' + (data.current_step || 0) + (data.started_at ? ' · started ' + escapeHtml(data.started_at) : '') + elapsedHtml + '</div>' +
+          stepsHtml +
+          '</div>';
+      }
+
+      function renderProgressEvents(events) {
+        eventsErrorEl.textContent = '';
+        progressEventsEl.innerHTML = '';
+        const recent = events.slice(-30).reverse();
+        recent.forEach(function (e) {
+          const li = document.createElement('li');
+          li.className = 'event';
+          const time = e.timestamp ? new Date(e.timestamp).toLocaleString() : '—';
+          li.innerHTML =
+            '<span class="time">' + escapeHtml(time) + '</span>' +
+            '<span class="agent">' + escapeHtml(e.agent || '') + '</span> ' +
+            escapeHtml(e.event || '') + ': ' + escapeHtml(e.message || '');
+          progressEventsEl.appendChild(li);
+        });
+      }
+
+      function escapeHtml(s) {
+        if (s == null) return '';
+        const div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+      }
+
+      var MIN_REFRESH_VISIBLE_MS = 600;
+
+      function load(silent) {
+        if (loadInProgress) return;
+        loadInProgress = true;
+        if (!silent) {
+          refreshBtn.disabled = true;
+          refreshBtn.textContent = 'Refreshing…';
+          refreshBtn.classList.add('refreshing');
+        }
+        setLastChecked();
+        var cacheBuster = '?t=' + Date.now();
+        var minVisible = new Promise(function (resolve) { setTimeout(resolve, silent ? 0 : MIN_REFRESH_VISIBLE_MS); });
+        Promise.all([
+          fetch(TASKS_URL + cacheBuster).then(function (r) { return r.ok ? r.text() : Promise.reject(new Error('Tasks: ' + r.status)); }),
+          fetch(SNAPSHOT_URL + cacheBuster).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('Snapshot: ' + r.status)); }),
+          fetch(PROGRESS_EVENTS_URL + cacheBuster).then(function (r) { return r.ok ? r.text() : Promise.reject(new Error('Events: ' + r.status)); })
+        ]).then(function (results) {
+          renderTasks(parseJsonl(results[0]));
+          renderProgressSummary(results[1]);
+          renderProgressEvents(parseJsonl(results[2]));
+          if (silent) tasksErrorEl.textContent = '';
+        }).catch(function (err) {
+          if (!silent) {
+            tasksErrorEl.textContent = 'Load failed. Start the server: python HARNESS/HUMANS_ONLY/serve.py then open http://localhost:8765/HUMANS_ONLY/ — ' + (err && err.message ? err.message : '');
+          }
+        }).finally(function () {
+          loadInProgress = false;
+          return minVisible;
+        }).then(function () {
+          if (!silent) {
+            refreshBtn.disabled = false;
+            refreshBtn.textContent = 'Refresh';
+            refreshBtn.classList.remove('refreshing');
+          }
+        });
+      }
+
+      autoRefreshLabelEl.textContent = 'Auto-refresh every ' + (POLL_INTERVAL_MS / 1000) + 's';
+      refreshBtn.addEventListener('click', function () { load(false); });
+      load(false);
+      pollTimer = setInterval(function () { load(true); }, POLL_INTERVAL_MS);
+    })();
+  </script>
+</body>
+</html>

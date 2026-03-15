@@ -1,0 +1,10 @@
+{
+    "limits": {
+        "max_attempts_per_task": -1,
+        "max_total_attempts": 300,
+        "max_tasks": -1,
+        "max_task_duration": 3600,
+        "max_spend": 25,
+        "delay_between_tasks": 30
+    }
+}

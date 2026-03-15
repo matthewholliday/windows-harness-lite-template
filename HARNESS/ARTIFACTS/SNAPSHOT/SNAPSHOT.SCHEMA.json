@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Snapshot",
+  "description": "Current pipeline snapshot state for the harness (single JSON document).",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "description": "Identifier of the task being run by the pipeline"
+    },
+    "title": {
+      "type": "string",
+      "description": "Short title of the task"
+    },
+    "pipeline_status": {
+      "type": "string",
+      "enum": ["running", "completed", "failed"],
+      "description": "Overall pipeline status"
+    },
+    "current_step": {
+      "type": "integer",
+      "description": "Index of the current pipeline step (1-based)"
+    },
+    "steps": {
+      "type": "array",
+      "description": "List of pipeline steps with name and status",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": { "type": "integer", "description": "Step number" },
+          "name": { "type": "string", "description": "Step/agent name" },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "in_progress", "completed", "failed"],
+            "description": "Step status"
+          }
+        },
+        "required": ["step", "name", "status"],
+        "additionalProperties": false
+      }
+    },
+    "started_at": {
+      "type": "string",
+      "description": "ISO 8601 timestamp when the pipeline started"
+    }
+  },
+  "required": ["task_id", "title", "pipeline_status", "current_step", "steps", "started_at"],
+  "additionalProperties": false
+}
